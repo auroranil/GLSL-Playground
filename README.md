@@ -1,6 +1,6 @@
 #GLSL Playground
 
-A simple program written in C++ that reads a custom fragment shader and shades it to the screen. Has basic compatibility with GLSL Heroku and Shadertoy fragment shaders.
+A simple program written in C++ that reads a custom fragment shader and shades it to the screen. Has basic compatibility with GLSL Sandbox (Heroku) and Shadertoy fragment shaders.
 
 ## Dependencies
 
@@ -8,6 +8,32 @@ A simple program written in C++ that reads a custom fragment shader and shades i
 
 ## Compile & Run
 Run `make` to compile the program. Once it is compiled, type in your shader in the `playground.fsh` file and run the executable to see it in action.
+
+## Inputs
+GLSL Sandbox (Heroku)
+
+    // returns the dimensions of the window
+    uniform vec2 resolution 
+
+    // returns the mouse position in the interval [0.0, 1.0] for .xy.
+    // origin is at bottom-left
+    uniform vec2 mouse
+
+    // returns the time in seconds from when the program started
+    uniform float time
+
+Shadertoy
+
+    // returns the dimensions of the window
+    uniform vec2 iResolution 
+
+    // returns the mouse coordinates (when clicked) for .xy
+    // and the mouse coordinates from last mouse press for .zw
+    // origin is at bottom-left
+    uniform vec4 iMouse
+
+    // returns the time in seconds from when the program started
+    uniform float iGlobalTime
 
 ## What it can do
 * Read and execute custom fragment shaders

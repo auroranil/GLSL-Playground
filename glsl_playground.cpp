@@ -306,7 +306,7 @@ int main(int argc, char ** argv) {
 		
 			glfwGetCursorPos(window, &mouseX, &mouseY);
 			mouse[0] = mouseX / (float) width;
-			mouse[1] = mouseX / (float) height;
+			mouse[1] = 1.0 - mouseY / (float) height;
 			
 			iMouse[2] = (float) _iMouseX;
 			iMouse[3] = height - (float) _iMouseY;
