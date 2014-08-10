@@ -32,4 +32,4 @@ Run `make` to compile the program. Once it is compiled, type in your shader in t
 This is purely a learning experience, to allow me to learn more about OpenGL and GLSL. I'm inspired from others who produce vivid shaders which is breathtaking and breaks a whole new level of algorithmic arts. GLSL is a powerful language, and I think it deserves a native program to get more people interested in this field. I chose C++ for better performance and removing the overhead required to render the website; however I'm skeptical that my program can run significantly faster than GLSL Heroku or Shadertoy.
 
 ## License
-This program is under `WTFPL 2.0` license.
+This program is under `BSD 2-Clause` license.
