@@ -27,50 +27,50 @@ bool paused = false;
 #ifndef TARGET_H
 #define TARGET_H
 class Target {
-	public:
-		GLuint framebuffer, renderbuffer, texture;
-		Target(GLsizei, GLsizei);
-		~Target();
+    public:
+        GLuint framebuffer, renderbuffer, texture;
+        Target(GLsizei, GLsizei);
+        ~Target();
 };
 
 Target::Target(GLsizei width, GLsizei height) {
-	// Generate framebuffer, renderbuffer, and texture
-	glGenFramebuffers(1, &framebuffer);
-	glGenRenderbuffers(1, &renderbuffer);
-	glGenTextures(1, &texture);
+    // Generate framebuffer, renderbuffer, and texture
+    glGenFramebuffers(1, &framebuffer);
+    glGenRenderbuffers(1, &renderbuffer);
+    glGenTextures(1, &texture);
 
-	// set up framebuffer
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    // set up framebuffer
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0 );
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0 );
 
-	// set up renderbuffer
+    // set up renderbuffer
 
-	glBindRenderbuffer( GL_RENDERBUFFER, renderbuffer );
+    glBindRenderbuffer( GL_RENDERBUFFER, renderbuffer );
 
-	glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height );
-	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer );
+    glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height );
+    glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer );
 
-	// clean up
+    // clean up
 
-	glBindTexture( GL_TEXTURE_2D, 0 );
-	glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-	glBindFramebuffer( GL_FRAMEBUFFER, 0);
+    glBindTexture( GL_TEXTURE_2D, 0 );
+    glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+    glBindFramebuffer( GL_FRAMEBUFFER, 0);
 
 }
 
 Target::~Target() {
-	glDeleteFramebuffers(1, &framebuffer);
-	glDeleteRenderbuffers(1, &renderbuffer);
-	glDeleteTextures(1, &texture);
+    glDeleteFramebuffers(1, &framebuffer);
+    glDeleteRenderbuffers(1, &renderbuffer);
+    glDeleteTextures(1, &texture);
 }
 #endif // TARGET_H
 
@@ -79,19 +79,19 @@ double currentTime;
 void setWindowFPS (GLFWwindow* win) {
     // Measure speed
     if(!paused) {
-		currentTime = glfwGetTime() - startTime;
-		nbFrames++;
+        currentTime = glfwGetTime() - startTime;
+        nbFrames++;
 
-		if ( currentTime - lastTime >= 1.0 ) {
-		    lastFrames = nbFrames;
+        if ( currentTime - lastTime >= 1.0 ) {
+            lastFrames = nbFrames;
 
-		    nbFrames = 0;
-		    lastTime += 1.0;
-		}
+            nbFrames = 0;
+            lastTime += 1.0;
+        }
     }
 
-	char title [256];
-	title [255] = '\0';
+    char title [256];
+    title [255] = '\0';
 
     snprintf (title, 255, "%s - %ds - [FPS: %d] @ %dx %s", "GLSL Playground", (int) currentTime, lastFrames, res, paused ? "(PAUSED)" : "");
 
@@ -106,54 +106,54 @@ static void error_callback(int error, const char* description)
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-    	printf("Exiting... (closed by user via Esc key)\n");
+        printf("Exiting... (closed by user via Esc key)\n");
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
 
     else if(key == GLFW_KEY_1 && action == GLFW_PRESS) {
-    	printf("Switched to 1x\n");
-    	res = 1;
+        printf("Switched to 1x\n");
+        res = 1;
     }
 
     else if(key == GLFW_KEY_2 && action == GLFW_PRESS) {
-    	printf("Switched to 2x\n");
-    	res = 2;
+        printf("Switched to 2x\n");
+        res = 2;
     }
 
     else if(key == GLFW_KEY_3 && action == GLFW_PRESS) {
-    	printf("Switched to 4x\n");
-    	res = 4;
+        printf("Switched to 4x\n");
+        res = 4;
     }
 
     else if(key == GLFW_KEY_4 && action == GLFW_PRESS) {
-    	printf("Switched to 8x\n");
-    	res = 8;
+        printf("Switched to 8x\n");
+        res = 8;
     } else if(key == GLFW_KEY_R && action == GLFW_PRESS) {
-    	printf("Resetted time to zero.\n");
-    	startTime = glfwGetTime();
+        printf("Resetted time to zero.\n");
+        startTime = glfwGetTime();
     } else if(key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-    	paused = !paused;
+        paused = !paused;
 
-    	printf(paused ? "Paused GLSL Playground\n" : "Resuming GLSL Playground\n");
+        printf(paused ? "Paused GLSL Playground\n" : "Resuming GLSL Playground\n");
 
-    	if(paused) {
-    		startTime = glfwGetTime() - startTime;
-    	}
+        if(paused) {
+            startTime = glfwGetTime() - startTime;
+        }
     }
 }
 
 double _iMouseX, _iMouseY;
 
 static void mouse_callback(GLFWwindow * window, int button, int action, int mods) {
-	if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
-		glfwGetCursorPos(window, &_iMouseX, &_iMouseY);
-	}
+    if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
+        glfwGetCursorPos(window, &_iMouseX, &_iMouseY);
+    }
 }
 
-	GLuint prog;
-	GLuint surfaceProg;
-	GLuint vert;
-	GLuint frag;
+    GLuint prog;
+    GLuint surfaceProg;
+    GLuint vert;
+    GLuint frag;
 
 off_t fsize(const char *filename) {
     struct stat st;
@@ -172,7 +172,7 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
             len += fsize(filePaths[i]);
     }
 
-	char * result = (char *) malloc((len + 1) * sizeof(char));
+    char * result = (char *) malloc((len + 1) * sizeof(char));
 
     for(int i = 0; i < numOfFiles; i++) {
         FILE * s_file = fopen(filePaths[i], "r");
@@ -182,7 +182,7 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
         prev_len += fsize(filePaths[i]);
     }
 
-	result[len] = '\0';
+    result[len] = '\0';
 
     *shaderID = glCreateShader(type);
     glShaderSource(*shaderID, 1, &result, 0);
@@ -205,37 +205,37 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
 }
 
 void init(void) {
-	GLuint vao;
-	GLuint bufs[2];
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(2, bufs);
+    GLuint vao;
+    GLuint bufs[2];
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(2, bufs);
 
-	glBindVertexArray(vao);
-	glEnableVertexAttribArray(POSITION_ATTRIB);
+    glBindVertexArray(vao);
+    glEnableVertexAttribArray(POSITION_ATTRIB);
 
-	glBindBuffer(GL_ARRAY_BUFFER, bufs[0]);
-	glBufferData(GL_ARRAY_BUFFER, 6*2*sizeof(GLfloat), vert_data, GL_STATIC_DRAW);
-	glVertexAttribPointer(POSITION_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, bufs[0]);
+    glBufferData(GL_ARRAY_BUFFER, 6*2*sizeof(GLfloat), vert_data, GL_STATIC_DRAW);
+    glVertexAttribPointer(POSITION_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     const char * vertexFilePath = "vertex.vsh";
-	shaderLoadSources(&vertexFilePath, 1, &vert, GL_VERTEX_SHADER);
+    shaderLoadSources(&vertexFilePath, 1, &vert, GL_VERTEX_SHADER);
 
     const char * fragmentFilePath[2] = {"shader_toy_inputs.fsh", "playground.fsh"};
     shaderLoadSources(fragmentFilePath, 2, &frag, GL_FRAGMENT_SHADER);
 
-	prog = glCreateProgram();
-	surfaceProg = glCreateProgram();
+    prog = glCreateProgram();
+    surfaceProg = glCreateProgram();
 
-	glAttachShader(prog, vert);
-	glAttachShader(prog, frag);
+    glAttachShader(prog, vert);
+    glAttachShader(prog, frag);
 
-	glBindAttribLocation(prog, POSITION_ATTRIB, "position");
+    glBindAttribLocation(prog, POSITION_ATTRIB, "position");
 
-	glLinkProgram(prog);
+    glLinkProgram(prog);
 
-	GLint result;
+    GLint result;
 
-	glGetProgramiv(prog, GL_LINK_STATUS, &result);
+    glGetProgramiv(prog, GL_LINK_STATUS, &result);
 
     if(result == GL_FALSE) {
         GLint length;
@@ -259,10 +259,10 @@ void init(void) {
 }
 
 void clean_up() {
-	glDeleteShader(vert);
-	glDeleteShader(frag);
-	glDeleteProgram(prog);
-	glfwTerminate();
+    glDeleteShader(vert);
+    glDeleteShader(frag);
+    glDeleteProgram(prog);
+    glfwTerminate();
 }
 
 int main(int argc, char ** argv) {
@@ -275,108 +275,108 @@ int main(int argc, char ** argv) {
         width = 480;
         height = 360;
     }
-	GLFWwindow* window;
+    GLFWwindow* window;
 
-	glfwSetErrorCallback(error_callback);
+    glfwSetErrorCallback(error_callback);
 
-	if(!glfwInit()) {
-		printf("Error while initialising glfw. Exiting...");
-		exit(EXIT_FAILURE);
-	}
+    if(!glfwInit()) {
+        printf("Error while initialising glfw. Exiting...");
+        exit(EXIT_FAILURE);
+    }
 
-	window = glfwCreateWindow(width, height, "GLSL Playground", NULL, NULL);
+    window = glfwCreateWindow(width, height, "GLSL Playground", NULL, NULL);
 
-	if(!window) {
-		printf("Error while initialising window via glfw. Terminating...");
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	}
+    if(!window) {
+        printf("Error while initialising window via glfw. Terminating...");
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
 
-	glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(window);
 
-	glfwSetKeyCallback(window, key_callback);
-	glfwSetMouseButtonCallback(window, mouse_callback);
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetMouseButtonCallback(window, mouse_callback);
 
-	int maxtexsize;
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxtexsize);
-	//printf("GL_MAX_TEXTURE_SIZE, %d\n",maxtexsize);
+    int maxtexsize;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxtexsize);
+    //printf("GL_MAX_TEXTURE_SIZE, %d\n",maxtexsize);
 
-	init();
+    init();
 
-	double mouseX, mouseY;
-	float mouse[2];
-	float iMouse[4];
+    double mouseX, mouseY;
+    float mouse[2];
+    float iMouse[4];
 
-	Target * backTarget = new Target(width/res, height/res);
-	Target * frontTarget = new Target(width, height);
+    Target * backTarget = new Target(width/res, height/res);
+    Target * frontTarget = new Target(width, height);
 
-	while(!glfwWindowShouldClose(window)) {
-		float ratio;
+    while(!glfwWindowShouldClose(window)) {
+        float ratio;
 
-		int width, height;
+        int width, height;
 
-		setWindowFPS(window);
+        setWindowFPS(window);
 
-		if(!paused) {
+        if(!paused) {
 
-			glfwGetCursorPos(window, &mouseX, &mouseY);
-			mouse[0] = mouseX / (float) width;
-			mouse[1] = 1.0 - mouseY / (float) height;
+            glfwGetCursorPos(window, &mouseX, &mouseY);
+            mouse[0] = mouseX / (float) width;
+            mouse[1] = 1.0 - mouseY / (float) height;
 
-			iMouse[2] = (float) _iMouseX;
-			iMouse[3] = height - (float) _iMouseY;
+            iMouse[2] = (float) _iMouseX;
+            iMouse[3] = height - (float) _iMouseY;
 
-			if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
-				iMouse[0] = mouseX;
-				iMouse[1] = height - mouseY;
-			} else {
-				iMouse[2] *= -1;
-				iMouse[3] *= -1;
-			}
+            if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+                iMouse[0] = mouseX;
+                iMouse[1] = height - mouseY;
+            } else {
+                iMouse[2] *= -1;
+                iMouse[3] *= -1;
+            }
 
-			glfwGetFramebufferSize(window, &width, &height);
-			ratio = width / (float) height;
+            glfwGetFramebufferSize(window, &width, &height);
+            ratio = width / (float) height;
 
-			glUseProgram(prog);
+            glUseProgram(prog);
 
-			// GLSL Heroku
-			GLint resolutionLocation = glGetUniformLocation(prog, "resolution");
-			GLint timeLocation = glGetUniformLocation(prog, "time");
-			GLint mouseLocation = glGetUniformLocation(prog, "mouse");
+            // GLSL Heroku
+            GLint resolutionLocation = glGetUniformLocation(prog, "resolution");
+            GLint timeLocation = glGetUniformLocation(prog, "time");
+            GLint mouseLocation = glGetUniformLocation(prog, "mouse");
 
-			float resolution[3] = { (float) width, (float) height, 1.0 };
+            float resolution[3] = { (float) width, (float) height, 1.0 };
 
-			glUniform2fv(resolutionLocation, 1, resolution);
-			glUniform1f(timeLocation, (float) (glfwGetTime() - startTime));
-			glUniform2fv(mouseLocation, 1, mouse);
+            glUniform2fv(resolutionLocation, 1, resolution);
+            glUniform1f(timeLocation, (float) (glfwGetTime() - startTime));
+            glUniform2fv(mouseLocation, 1, mouse);
 
-			// Shadertoy
-			GLint iResolutionLocation = glGetUniformLocation(prog, "iResolution");
-			GLint iGlobalTimeLocation = glGetUniformLocation(prog, "iGlobalTime");
-			GLint iMouseLocation = glGetUniformLocation(prog, "iMouse");
+            // Shadertoy
+            GLint iResolutionLocation = glGetUniformLocation(prog, "iResolution");
+            GLint iGlobalTimeLocation = glGetUniformLocation(prog, "iGlobalTime");
+            GLint iMouseLocation = glGetUniformLocation(prog, "iMouse");
 
-			glUniform3fv(iResolutionLocation, 1, resolution);
-			glUniform1f(iGlobalTimeLocation, (float) (glfwGetTime() - startTime));
-			glUniform4fv(iMouseLocation, 1, iMouse);
+            glUniform3fv(iResolutionLocation, 1, resolution);
+            glUniform1f(iGlobalTimeLocation, (float) (glfwGetTime() - startTime));
+            glUniform4fv(iMouseLocation, 1, iMouse);
 
-			glViewport(0, 0, width, height);
-			glClear(GL_COLOR_BUFFER_BIT);
+            glViewport(0, 0, width, height);
+            glClear(GL_COLOR_BUFFER_BIT);
 
-			glDrawArrays(GL_TRIANGLES, 0, 6);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		}
+        }
 
-		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
+        /* Swap front and back buffers */
+        glfwSwapBuffers(window);
 
-		/* Poll for and process events */
-		glfwPollEvents();
+        /* Poll for and process events */
+        glfwPollEvents();
 
-		// disable program
-		glUseProgram(0);
-	}
+        // disable program
+        glUseProgram(0);
+    }
 
-	clean_up();
+    clean_up();
 
-	return 0;
+    return 0;
 }
