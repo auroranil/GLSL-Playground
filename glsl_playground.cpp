@@ -307,13 +307,25 @@ int main(int argc, char ** argv) {
     float mouse[2];
     float iMouse[4];
 
+    float ratio;
+
+    // GLSL Heroku
+    GLint resolutionLocation = glGetUniformLocation(prog, "resolution");
+    GLint timeLocation = glGetUniformLocation(prog, "time");
+    GLint mouseLocation = glGetUniformLocation(prog, "mouse");
+
+    // Shadertoy
+    GLint iResolutionLocation = glGetUniformLocation(prog, "iResolution");
+    GLint iGlobalTimeLocation = glGetUniformLocation(prog, "iGlobalTime");
+    GLint iMouseLocation = glGetUniformLocation(prog, "iMouse");
+
     Target * backTarget = new Target(width/res, height/res);
     Target * frontTarget = new Target(width, height);
 
-    while(!glfwWindowShouldClose(window)) {
-        float ratio;
+    float resolution[3];
+    resolution[2] = 1.0;
 
-        int width, height;
+    while(!glfwWindowShouldClose(window)) {
 
         setWindowFPS(window);
 
@@ -339,21 +351,12 @@ int main(int argc, char ** argv) {
 
             glUseProgram(prog);
 
-            // GLSL Heroku
-            GLint resolutionLocation = glGetUniformLocation(prog, "resolution");
-            GLint timeLocation = glGetUniformLocation(prog, "time");
-            GLint mouseLocation = glGetUniformLocation(prog, "mouse");
-
-            float resolution[3] = { (float) width, (float) height, 1.0 };
+            resolution[0] = (float) width;
+            resolution[1] = (float) height;
 
             glUniform2fv(resolutionLocation, 1, resolution);
             glUniform1f(timeLocation, (float) (glfwGetTime() - startTime));
             glUniform2fv(mouseLocation, 1, mouse);
-
-            // Shadertoy
-            GLint iResolutionLocation = glGetUniformLocation(prog, "iResolution");
-            GLint iGlobalTimeLocation = glGetUniformLocation(prog, "iGlobalTime");
-            GLint iMouseLocation = glGetUniformLocation(prog, "iMouse");
 
             glUniform3fv(iResolutionLocation, 1, resolution);
             glUniform1f(iGlobalTimeLocation, (float) (glfwGetTime() - startTime));
