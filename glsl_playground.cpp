@@ -1,7 +1,6 @@
 #include <GLFW/glfw3.h>
 #include <cstdio>
 #include <cstdlib>
-#include <unistd.h>
 #include <sys/stat.h>
 
 GLfloat vert_data[] = {
@@ -93,7 +92,7 @@ void setWindowFPS (GLFWwindow* win) {
     char title [256];
     title [255] = '\0';
 
-    snprintf (title, 255, "%s - %ds - [FPS: %d] @ %dx %s", "GLSL Playground", (int) currentTime, lastFrames, res, paused ? "(PAUSED)" : "");
+    snprintf (title, 255, "%s - %.2fs - [FPS: %d] @ %dx %s", "GLSL Playground", currentTime, lastFrames, res, paused ? "(PAUSED)" : "");
 
     glfwSetWindowTitle (win, title);
 }
@@ -136,9 +135,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
         printf(paused ? "Paused GLSL Playground\n" : "Resuming GLSL Playground\n");
 
-        if(paused) {
-            startTime = glfwGetTime() - startTime;
-        }
+        startTime = glfwGetTime() - startTime;
     }
 }
 
@@ -150,10 +147,10 @@ static void mouse_callback(GLFWwindow * window, int button, int action, int mods
     }
 }
 
-    GLuint prog;
-    GLuint surfaceProg;
-    GLuint vert;
-    GLuint frag;
+GLuint prog;
+GLuint surfaceProg;
+GLuint vert;
+GLuint frag;
 
 off_t fsize(const char *filename) {
     struct stat st;

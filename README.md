@@ -13,7 +13,7 @@ Run `make` to compile the program. Once it is compiled, type in your shader in t
 GLSL Sandbox (Heroku)
 
     // returns the dimensions of the window
-    uniform vec2 resolution 
+    uniform vec2 resolution
 
     // returns the mouse position in the interval [0.0, 1.0] for .xy.
     // origin is at bottom-left
@@ -25,7 +25,7 @@ GLSL Sandbox (Heroku)
 Shadertoy
 
     // returns the dimensions of the window
-    uniform vec2 iResolution 
+    uniform vec2 iResolution
 
     // returns the mouse coordinates (when clicked) for .xy
     // and the mouse coordinates from last mouse press for .zw
@@ -41,12 +41,13 @@ Shadertoy
 * Display time in seconds and frames per second on the title window.
 * (not yet implemented) Pressing 1-4 changes resolution factor (1x, 2x, 4x, 8x)
 * Pressing R resets timer to zero.
+* Pressing the spacebar pauses/resumes GLSL Playground.
 * Esc or closing the program through traditional means exits the program.
 
 ## TODO
 * Learn more how OpenGL works (I'm a noob at this)
 * Improve performance by optimizing code
-* Add pause function that can be done by pressing the space bar
+* ~~Add pause function that can be done by pressing the space bar~~
 * Implement resolution factor as seen in GLSL Heroku
 * Add ability to reload shader that can be done by pressing Shift + R
 * Improve compatibility with GLSL Heroku and Shadertoy
