@@ -5,15 +5,15 @@
 #include <sys/stat.h>
 
 GLfloat vert_data[] = {
-  -1.0, -1.0, 0.0,
-  1.0, -1.0, 0.0,
-  -1.0, 1.0, 0.0,
-  
-  1.0, 1.0, 0.0,
-  -1.0, 1.0, 0.0,
-  1.0, -1.0, 0.0
+  -1.0, -1.0,
+  1.0, -1.0,
+  -1.0, 1.0,
+
+  1.0, 1.0,
+  -1.0, 1.0,
+  1.0, -1.0
 };
- 
+
 #define POSITION_ATTRIB 0
 #define COLOR_ATTRIB 1
 
@@ -27,7 +27,7 @@ bool paused = false;
 #ifndef TARGET_H
 #define TARGET_H
 class Target {
-	public: 
+	public:
 		GLuint framebuffer, renderbuffer, texture;
 		Target(GLsizei, GLsizei);
 		~Target();
@@ -38,17 +38,17 @@ Target::Target(GLsizei width, GLsizei height) {
 	glGenFramebuffers(1, &framebuffer);
 	glGenRenderbuffers(1, &renderbuffer);
 	glGenTextures(1, &texture);
-	
-	// set up framebuffer	
+
+	// set up framebuffer
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	
+
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0 );
 
@@ -82,17 +82,17 @@ void setWindowFPS (GLFWwindow* win) {
 		currentTime = glfwGetTime() - startTime;
 		nbFrames++;
 
-		if ( currentTime - lastTime >= 1.0 ){ // If last cout was more than 1 sec ago       
+		if ( currentTime - lastTime >= 1.0 ) {
 		    lastFrames = nbFrames;
 
 		    nbFrames = 0;
 		    lastTime += 1.0;
 		}
     }
-    
+
 	char title [256];
 	title [255] = '\0';
-    
+
     snprintf (title, 255, "%s - %ds - [FPS: %d] @ %dx %s", "GLSL Playground", (int) currentTime, lastFrames, res, paused ? "(PAUSED)" : "");
 
     glfwSetWindowTitle (win, title);
@@ -109,22 +109,22 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     	printf("Exiting... (closed by user via Esc key)\n");
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
-    
+
     else if(key == GLFW_KEY_1 && action == GLFW_PRESS) {
     	printf("Switched to 1x\n");
     	res = 1;
     }
-    
+
     else if(key == GLFW_KEY_2 && action == GLFW_PRESS) {
     	printf("Switched to 2x\n");
     	res = 2;
     }
-    
+
     else if(key == GLFW_KEY_3 && action == GLFW_PRESS) {
     	printf("Switched to 4x\n");
     	res = 4;
     }
-    
+
     else if(key == GLFW_KEY_4 && action == GLFW_PRESS) {
     	printf("Switched to 8x\n");
     	res = 8;
@@ -133,9 +133,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     	startTime = glfwGetTime();
     } else if(key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
     	paused = !paused;
-    	
+
     	printf(paused ? "Paused GLSL Playground\n" : "Resuming GLSL Playground\n");
-    	
+
     	if(paused) {
     		startTime = glfwGetTime() - startTime;
     	}
@@ -156,21 +156,52 @@ static void mouse_callback(GLFWwindow * window, int button, int action, int mods
 	GLuint frag;
 
 off_t fsize(const char *filename) {
-    struct stat st; 
+    struct stat st;
 
     if (stat(filename, &st) == 0)
         return st.st_size;
 
-    return -1; 
+    return -1;
 }
-	
-void shaderLoadSource(const char * filePath, char ** result, int * len) {
-	FILE * s_file = fopen(filePath, "r");
-	*len = fsize(filePath);
-	*result = (char *) malloc((*len + 1) * sizeof(char));
-	fread(*result, sizeof(char), *len * sizeof(char), s_file);
-	fclose(s_file);
-	(*result)[*len] = '\0';
+
+void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderID, GLint type) {
+    int len = 0;
+    int prev_len = 0;
+
+    for(int i = 0; i < numOfFiles; i++) {
+            len += fsize(filePaths[i]);
+    }
+
+	char * result = (char *) malloc((len + 1) * sizeof(char));
+
+    for(int i = 0; i < numOfFiles; i++) {
+        FILE * s_file = fopen(filePaths[i], "r");
+
+        fread(&result[prev_len], sizeof(char), len * sizeof(char), s_file);
+        fclose(s_file);
+        prev_len += fsize(filePaths[i]);
+    }
+
+	result[len] = '\0';
+
+    *shaderID = glCreateShader(type);
+    glShaderSource(*shaderID, 1, &result, 0);
+    glCompileShader(*shaderID);
+
+    GLint compileStatus;
+    glGetShaderiv(*shaderID, GL_COMPILE_STATUS, &compileStatus);
+
+    if(compileStatus != GL_TRUE) {
+        printf("Failed to compile %s shader:\n", type == GL_VERTEX_SHADER ? "vertex" : type == GL_FRAGMENT_SHADER ? "fragment" : "unknown");
+        GLint infoLogLength;
+        glGetShaderiv(*shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
+        GLchar * infoLog = new GLchar[infoLogLength + 1];
+        glGetShaderInfoLog(*shaderID, infoLogLength + 1, NULL, infoLog);
+        printf("%s\n", infoLog);
+        delete infoLog;
+
+        exit(EXIT_FAILURE);
+    }
 }
 
 void init(void) {
@@ -183,52 +214,29 @@ void init(void) {
 	glEnableVertexAttribArray(POSITION_ATTRIB);
 
 	glBindBuffer(GL_ARRAY_BUFFER, bufs[0]);
-	glBufferData(GL_ARRAY_BUFFER, 6*3*sizeof(GLfloat), vert_data, GL_STATIC_DRAW);
-	glVertexAttribPointer(POSITION_ATTRIB, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	
-	int vs_src_size;
-	char * vs_src;
+	glBufferData(GL_ARRAY_BUFFER, 6*2*sizeof(GLfloat), vert_data, GL_STATIC_DRAW);
+	glVertexAttribPointer(POSITION_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-	shaderLoadSource("vertex.vsh", &vs_src, &vs_src_size);
-		
-	FILE * shader_toy_inputs_file = fopen("shader_toy_inputs.fsh", "r");
-	FILE * fs_file = fopen("playground.fsh", "r");
+    const char * vertexFilePath = "vertex.vsh";
+	shaderLoadSources(&vertexFilePath, 1, &vert, GL_VERTEX_SHADER);
 
-	long shader_toy_inputs_src_size = fsize("shader_toy_inputs.fsh");
-	long fs_src_size = fsize("playground.fsh");
-	
-	char * fs_src = (char *) malloc((shader_toy_inputs_src_size + fs_src_size + 1) * sizeof(char));
-	
-	fread(fs_src, sizeof(char), shader_toy_inputs_src_size * sizeof(char), shader_toy_inputs_file);
-	
-	fread(&fs_src[shader_toy_inputs_src_size], sizeof(char), fs_src_size * sizeof(char), fs_file);
-	fs_src[shader_toy_inputs_src_size + fs_src_size] = '\0';
-	
-	fclose(fs_file);
-	
-	//printf("%s\n", fs_src);
-	
+    const char * fragmentFilePath[2] = {"shader_toy_inputs.fsh", "playground.fsh"};
+    shaderLoadSources(fragmentFilePath, 2, &frag, GL_FRAGMENT_SHADER);
+
 	prog = glCreateProgram();
 	surfaceProg = glCreateProgram();
-	vert = glCreateShader(GL_VERTEX_SHADER);
-	frag = glCreateShader(GL_FRAGMENT_SHADER);
-	
-	glShaderSource(vert, 1, &vs_src, 0);
-	glShaderSource(frag, 1, &fs_src, 0);
-	glCompileShader(vert);
-	glCompileShader(frag);
-	
+
 	glAttachShader(prog, vert);
 	glAttachShader(prog, frag);
-	
+
 	glBindAttribLocation(prog, POSITION_ATTRIB, "position");
-	
+
 	glLinkProgram(prog);
-	
+
 	GLint result;
-	
+
 	glGetProgramiv(prog, GL_LINK_STATUS, &result);
-	
+
     if(result == GL_FALSE) {
         GLint length;
         char *log;
@@ -245,14 +253,21 @@ void init(void) {
         /* delete the program */
         glDeleteProgram(prog);
         prog = 0;
-        
+
         exit(EXIT_FAILURE);
     }
 }
 
+void clean_up() {
+	glDeleteShader(vert);
+	glDeleteShader(frag);
+	glDeleteProgram(prog);
+	glfwTerminate();
+}
+
 int main(int argc, char ** argv) {
     int width, height;
-    
+
     if(argc == 3) {
         sscanf(argv[1], "%d", &width);
         sscanf(argv[2], "%d", &height);
@@ -261,56 +276,56 @@ int main(int argc, char ** argv) {
         height = 360;
     }
 	GLFWwindow* window;
-	
+
 	glfwSetErrorCallback(error_callback);
-	
+
 	if(!glfwInit()) {
 		printf("Error while initialising glfw. Exiting...");
 		exit(EXIT_FAILURE);
 	}
-	
+
 	window = glfwCreateWindow(width, height, "GLSL Playground", NULL, NULL);
-	
+
 	if(!window) {
 		printf("Error while initialising window via glfw. Terminating...");
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
-	
+
 	glfwMakeContextCurrent(window);
-	
+
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_callback);
-	
+
 	int maxtexsize;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxtexsize);
-	//printf("GL_MAX_TEXTURE_SIZE, %d\n",maxtexsize);    
-	
+	//printf("GL_MAX_TEXTURE_SIZE, %d\n",maxtexsize);
+
 	init();
-	
+
 	double mouseX, mouseY;
 	float mouse[2];
 	float iMouse[4];
-	
+
 	Target * backTarget = new Target(width/res, height/res);
 	Target * frontTarget = new Target(width, height);
-	
-	while(!glfwWindowShouldClose(window)) {	
+
+	while(!glfwWindowShouldClose(window)) {
 		float ratio;
-		
+
 		int width, height;
-		
+
 		setWindowFPS(window);
-			
+
 		if(!paused) {
-		
+
 			glfwGetCursorPos(window, &mouseX, &mouseY);
 			mouse[0] = mouseX / (float) width;
 			mouse[1] = 1.0 - mouseY / (float) height;
-			
+
 			iMouse[2] = (float) _iMouseX;
 			iMouse[3] = height - (float) _iMouseY;
-			
+
 			if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
 				iMouse[0] = mouseX;
 				iMouse[1] = height - mouseY;
@@ -318,50 +333,50 @@ int main(int argc, char ** argv) {
 				iMouse[2] *= -1;
 				iMouse[3] *= -1;
 			}
-		
+
 			glfwGetFramebufferSize(window, &width, &height);
 			ratio = width / (float) height;
-		
+
 			glUseProgram(prog);
-		
+
 			// GLSL Heroku
 			GLint resolutionLocation = glGetUniformLocation(prog, "resolution");
 			GLint timeLocation = glGetUniformLocation(prog, "time");
 			GLint mouseLocation = glGetUniformLocation(prog, "mouse");
-		
-			float resolution[3] = { (float) width, (float) height, 1.0 }; 
-		
+
+			float resolution[3] = { (float) width, (float) height, 1.0 };
+
 			glUniform2fv(resolutionLocation, 1, resolution);
 			glUniform1f(timeLocation, (float) (glfwGetTime() - startTime));
 			glUniform2fv(mouseLocation, 1, mouse);
-		
+
 			// Shadertoy
 			GLint iResolutionLocation = glGetUniformLocation(prog, "iResolution");
 			GLint iGlobalTimeLocation = glGetUniformLocation(prog, "iGlobalTime");
 			GLint iMouseLocation = glGetUniformLocation(prog, "iMouse");
-		
+
 			glUniform3fv(iResolutionLocation, 1, resolution);
 			glUniform1f(iGlobalTimeLocation, (float) (glfwGetTime() - startTime));
 			glUniform4fv(iMouseLocation, 1, iMouse);
-		
+
 			glViewport(0, 0, width, height);
 			glClear(GL_COLOR_BUFFER_BIT);
-		
+
 			glDrawArrays(GL_TRIANGLES, 0, 6);
-		
+
 		}
-		
+
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
-		
+
 		/* Poll for and process events */
 		glfwPollEvents();
-		
+
 		// disable program
 		glUseProgram(0);
 	}
-	
-	glfwTerminate();
+
+	clean_up();
 
 	return 0;
 }
