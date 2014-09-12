@@ -3,25 +3,35 @@
 #include <cstdlib>
 #include <sys/stat.h>
 
+#define WINDOW_TITLE "GLSL Playground"
+#define AUTHOR "Saurabh Joshi"
+
+#define POSITION_ATTRIB 0
+#define COLOR_ATTRIB 1
+
+// Vertex data of screen
+// GL_TRIANGLE_STRIP
 GLfloat vert_data[] = {
   -1.0, -1.0,
   1.0, -1.0,
   -1.0, 1.0,
-
-  1.0, 1.0,
-  -1.0, 1.0,
-  1.0, -1.0
+  1.0, 1.0
 };
-
-#define POSITION_ATTRIB 0
-#define COLOR_ATTRIB 1
 
 int nbFrames = 0, lastFrames = 0;
 unsigned int res = 2;
 double lastTime = 0.0;
 double startTime = 0.0;
+double currentTime;
 
 bool paused = false;
+
+GLuint prog;
+GLuint surfaceProg;
+GLuint vert;
+GLuint frag;
+
+double _iMouseX, _iMouseY;
 
 #ifndef TARGET_H
 #define TARGET_H
@@ -73,7 +83,6 @@ Target::~Target() {
 }
 #endif // TARGET_H
 
-double currentTime;
 // https://stackoverflow.com/questions/18412120/displaying-fps-in-glfw-window-title
 void setWindowFPS (GLFWwindow* win) {
     // Measure speed
@@ -92,7 +101,7 @@ void setWindowFPS (GLFWwindow* win) {
     char title [256];
     title [255] = '\0';
 
-    snprintf (title, 255, "%s - %.2fs - [FPS: %d] @ %dx %s", "GLSL Playground", currentTime, lastFrames, res, paused ? "(PAUSED)" : "");
+    snprintf (title, 255, "%s - %.2fs - [FPS: %d] @ %dx %s", WINDOW_TITLE, currentTime, lastFrames, res, paused ? "(PAUSED)" : "");
 
     glfwSetWindowTitle (win, title);
 }
@@ -104,53 +113,54 @@ static void error_callback(int error, const char* description)
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        printf("Exiting... (closed by user via Esc key)\n");
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    }
+	if(action == GLFW_PRESS) {
+		switch(key) {
+			case GLFW_KEY_ESCAPE:
+				printf("Exiting... (closed by user via Esc key)\n");
+				glfwSetWindowShouldClose(window, GL_TRUE);				
+			break;
+			
+			case GLFW_KEY_1:
+				printf("Switched to 1x\n");
+				res = 1;
+			break;
+			
+			case GLFW_KEY_2:
+				printf("Switched to 2x\n");
+				res = 2;
+			break;
+			
+			case GLFW_KEY_3:
+				printf("Switched to 4x\n");
+				res = 4;
+			break;
+			
+			case GLFW_KEY_4:
+				printf("Switched to 8x\n");
+				res = 8;
+			break;
+			
+			case GLFW_KEY_R:
+		        printf("Resetted time to zero.\n");
+		        startTime = glfwGetTime();
+		    break;
+		    
+		    case GLFW_KEY_SPACE:
+				paused = !paused;
 
-    else if(key == GLFW_KEY_1 && action == GLFW_PRESS) {
-        printf("Switched to 1x\n");
-        res = 1;
-    }
+				printf(paused ? "Paused GLSL Playground\n" : "Resuming GLSL Playground\n");
 
-    else if(key == GLFW_KEY_2 && action == GLFW_PRESS) {
-        printf("Switched to 2x\n");
-        res = 2;
-    }
-
-    else if(key == GLFW_KEY_3 && action == GLFW_PRESS) {
-        printf("Switched to 4x\n");
-        res = 4;
-    }
-
-    else if(key == GLFW_KEY_4 && action == GLFW_PRESS) {
-        printf("Switched to 8x\n");
-        res = 8;
-    } else if(key == GLFW_KEY_R && action == GLFW_PRESS) {
-        printf("Resetted time to zero.\n");
-        startTime = glfwGetTime();
-    } else if(key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-        paused = !paused;
-
-        printf(paused ? "Paused GLSL Playground\n" : "Resuming GLSL Playground\n");
-
-        startTime = glfwGetTime() - startTime;
-    }
+				startTime = glfwGetTime() - startTime;	    
+		    break;
+		}
+	}
 }
-
-double _iMouseX, _iMouseY;
 
 static void mouse_callback(GLFWwindow * window, int button, int action, int mods) {
     if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
         glfwGetCursorPos(window, &_iMouseX, &_iMouseY);
     }
 }
-
-GLuint prog;
-GLuint surfaceProg;
-GLuint vert;
-GLuint frag;
 
 off_t fsize(const char *filename) {
     struct stat st;
@@ -201,17 +211,51 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
     }
 }
 
+void loadProgram(GLuint * prog, GLuint * vert_shader, GLuint * frag_shader) {
+	*prog = glCreateProgram();
+	
+	glAttachShader(*prog, *vert_shader);
+	glAttachShader(*prog, *frag_shader);
+	
+    glBindAttribLocation(*prog, POSITION_ATTRIB, "position");
+
+    glLinkProgram(*prog);
+    
+	GLint result;
+
+    glGetProgramiv(*prog, GL_LINK_STATUS, &result);
+
+    if(result == GL_FALSE) {
+        GLint length;
+        char *log;
+
+        /* get the program info log */
+        glGetProgramiv(*prog, GL_INFO_LOG_LENGTH, &length);
+        log = (char *) malloc(length);
+        glGetProgramInfoLog(*prog, length, &result, log);
+
+        /* print an error message and the info log */
+        fprintf(stderr, "loadProgram(): Program linking failed:\n%s\n", log);
+        free(log);
+
+        /* delete the program */
+        glDeleteProgram(*prog);
+
+        exit(EXIT_FAILURE);
+    }
+}
+
 void init(void) {
     GLuint vao;
-    GLuint bufs[2];
+    GLuint buf;
     glGenVertexArrays(1, &vao);
-    glGenBuffers(2, bufs);
+    glGenBuffers(1, &buf);
 
     glBindVertexArray(vao);
     glEnableVertexAttribArray(POSITION_ATTRIB);
 
-    glBindBuffer(GL_ARRAY_BUFFER, bufs[0]);
-    glBufferData(GL_ARRAY_BUFFER, 6*2*sizeof(GLfloat), vert_data, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, buf);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vert_data), vert_data, GL_STATIC_DRAW);
     glVertexAttribPointer(POSITION_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     const char * vertexFilePath = "vertex.vsh";
@@ -219,40 +263,10 @@ void init(void) {
 
     const char * fragmentFilePath[2] = {"shader_toy_inputs.fsh", "playground.fsh"};
     shaderLoadSources(fragmentFilePath, 2, &frag, GL_FRAGMENT_SHADER);
+    
+    loadProgram(&prog, &vert, &frag);
 
-    prog = glCreateProgram();
-    surfaceProg = glCreateProgram();
-
-    glAttachShader(prog, vert);
-    glAttachShader(prog, frag);
-
-    glBindAttribLocation(prog, POSITION_ATTRIB, "position");
-
-    glLinkProgram(prog);
-
-    GLint result;
-
-    glGetProgramiv(prog, GL_LINK_STATUS, &result);
-
-    if(result == GL_FALSE) {
-        GLint length;
-        char *log;
-
-        /* get the program info log */
-        glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &length);
-        log = (char *) malloc(length);
-        glGetProgramInfoLog(prog, length, &result, log);
-
-        /* print an error message and the info log */
-        fprintf(stderr, "init(): Program linking failed:\n%s\n", log);
-        free(log);
-
-        /* delete the program */
-        glDeleteProgram(prog);
-        prog = 0;
-
-        exit(EXIT_FAILURE);
-    }
+    //surfaceProg = glCreateProgram();
 }
 
 void clean_up() {
@@ -265,26 +279,38 @@ void clean_up() {
 int main(int argc, char ** argv) {
     int width, height;
 
+	// if width and height is specified, open window with those dimensions
     if(argc == 3) {
         sscanf(argv[1], "%d", &width);
         sscanf(argv[2], "%d", &height);
-    } else {
+    }
+    // If the program is opened with no parameters, open with default dimensions 480x360
+    else if(argc == 1) {
         width = 480;
         height = 360;
     }
+    
+    // Print the help dialog
+    else {
+    	printf("%s, by %s.\n", WINDOW_TITLE, AUTHOR);
+    	printf("\n");
+    	printf("Usage: ./glsl_playground [width height]\n");
+    	exit(EXIT_SUCCESS);
+    }
+    
     GLFWwindow* window;
 
     glfwSetErrorCallback(error_callback);
 
     if(!glfwInit()) {
-        printf("Error while initialising glfw. Exiting...");
+        printf("Error while initialising glfw. Exiting...\n");
         exit(EXIT_FAILURE);
     }
 
-    window = glfwCreateWindow(width, height, "GLSL Playground", NULL, NULL);
+    window = glfwCreateWindow(width, height, WINDOW_TITLE, NULL, NULL);
 
     if(!window) {
-        printf("Error while initialising window via glfw. Terminating...");
+        printf("Error while initialising window via glfw. Terminating...\n");
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
@@ -294,17 +320,11 @@ int main(int argc, char ** argv) {
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_callback);
 
-    int maxtexsize;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxtexsize);
-    //printf("GL_MAX_TEXTURE_SIZE, %d\n",maxtexsize);
-
     init();
 
     double mouseX, mouseY;
     float mouse[2];
     float iMouse[4];
-
-    float ratio;
 
     // GLSL Heroku
     GLint resolutionLocation = glGetUniformLocation(prog, "resolution");
@@ -316,8 +336,8 @@ int main(int argc, char ** argv) {
     GLint iGlobalTimeLocation = glGetUniformLocation(prog, "iGlobalTime");
     GLint iMouseLocation = glGetUniformLocation(prog, "iMouse");
 
-    Target * backTarget = new Target(width/res, height/res);
-    Target * frontTarget = new Target(width, height);
+    //Target * backTarget = new Target(width/res, height/res);
+    //Target * frontTarget = new Target(width, height);
 
     float resolution[3];
     resolution[2] = 1.0;
@@ -329,6 +349,7 @@ int main(int argc, char ** argv) {
         if(!paused) {
 
             glfwGetCursorPos(window, &mouseX, &mouseY);
+            
             mouse[0] = mouseX / (float) width;
             mouse[1] = 1.0 - mouseY / (float) height;
 
@@ -342,14 +363,13 @@ int main(int argc, char ** argv) {
                 iMouse[2] *= -1;
                 iMouse[3] *= -1;
             }
-
-            glfwGetFramebufferSize(window, &width, &height);
-            ratio = width / (float) height;
-
-            glUseProgram(prog);
-
+            
             resolution[0] = (float) width;
             resolution[1] = (float) height;
+
+            glfwGetFramebufferSize(window, &width, &height);
+
+            glUseProgram(prog);
 
             glUniform2fv(resolutionLocation, 1, resolution);
             glUniform1f(timeLocation, (float) (glfwGetTime() - startTime));
@@ -362,8 +382,8 @@ int main(int argc, char ** argv) {
             glViewport(0, 0, width, height);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            
         }
 
         /* Swap front and back buffers */

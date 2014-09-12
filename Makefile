@@ -1,5 +1,5 @@
 CC=g++
-CC_FLAGS=`pkg-config --cflags glfw3` -DGL_GLEXT_PROTOTYPES
+CC_FLAGS=-Wall `pkg-config --cflags glfw3` -DGL_GLEXT_PROTOTYPES
 LD_FLAGS=`pkg-config --static --libs glfw3`
 src=glsl_playground.cpp
 exec=glsl_playground
