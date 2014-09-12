@@ -113,47 +113,47 @@ static void error_callback(int error, const char* description)
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if(action == GLFW_PRESS) {
-		switch(key) {
-			case GLFW_KEY_ESCAPE:
-				printf("Exiting... (closed by user via Esc key)\n");
-				glfwSetWindowShouldClose(window, GL_TRUE);				
-			break;
-			
-			case GLFW_KEY_1:
-				printf("Switched to 1x\n");
-				res = 1;
-			break;
-			
-			case GLFW_KEY_2:
-				printf("Switched to 2x\n");
-				res = 2;
-			break;
-			
-			case GLFW_KEY_3:
-				printf("Switched to 4x\n");
-				res = 4;
-			break;
-			
-			case GLFW_KEY_4:
-				printf("Switched to 8x\n");
-				res = 8;
-			break;
-			
-			case GLFW_KEY_R:
-		        printf("Resetted time to zero.\n");
-		        startTime = glfwGetTime();
-		    break;
-		    
-		    case GLFW_KEY_SPACE:
-				paused = !paused;
+    if(action == GLFW_PRESS) {
+        switch(key) {
+            case GLFW_KEY_ESCAPE:
+                printf("Exiting... (closed by user via Esc key)\n");
+                glfwSetWindowShouldClose(window, GL_TRUE);                
+            break;
+            
+            case GLFW_KEY_1:
+                printf("Switched to 1x\n");
+                res = 1;
+            break;
+            
+            case GLFW_KEY_2:
+                printf("Switched to 2x\n");
+                res = 2;
+            break;
+            
+            case GLFW_KEY_3:
+                printf("Switched to 4x\n");
+                res = 4;
+            break;
+            
+            case GLFW_KEY_4:
+                printf("Switched to 8x\n");
+                res = 8;
+            break;
+            
+            case GLFW_KEY_R:
+                printf("Resetted time to zero.\n");
+                startTime = glfwGetTime();
+            break;
+            
+            case GLFW_KEY_SPACE:
+                paused = !paused;
 
-				printf(paused ? "Paused GLSL Playground\n" : "Resuming GLSL Playground\n");
+                printf(paused ? "Paused GLSL Playground\n" : "Resuming GLSL Playground\n");
 
-				startTime = glfwGetTime() - startTime;	    
-		    break;
-		}
-	}
+                startTime = glfwGetTime() - startTime;        
+            break;
+        }
+    }
 }
 
 static void mouse_callback(GLFWwindow * window, int button, int action, int mods) {
@@ -212,16 +212,16 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
 }
 
 void loadProgram(GLuint * prog, GLuint * vert_shader, GLuint * frag_shader) {
-	*prog = glCreateProgram();
-	
-	glAttachShader(*prog, *vert_shader);
-	glAttachShader(*prog, *frag_shader);
-	
+    *prog = glCreateProgram();
+    
+    glAttachShader(*prog, *vert_shader);
+    glAttachShader(*prog, *frag_shader);
+    
     glBindAttribLocation(*prog, POSITION_ATTRIB, "position");
 
     glLinkProgram(*prog);
     
-	GLint result;
+    GLint result;
 
     glGetProgramiv(*prog, GL_LINK_STATUS, &result);
 
@@ -279,7 +279,7 @@ void clean_up() {
 int main(int argc, char ** argv) {
     int width, height;
 
-	// if width and height is specified, open window with those dimensions
+    // if width and height is specified, open window with those dimensions
     if(argc == 3) {
         sscanf(argv[1], "%d", &width);
         sscanf(argv[2], "%d", &height);
@@ -292,10 +292,10 @@ int main(int argc, char ** argv) {
     
     // Print the help dialog
     else {
-    	printf("%s, by %s.\n", WINDOW_TITLE, AUTHOR);
-    	printf("\n");
-    	printf("Usage: ./glsl_playground [width height]\n");
-    	exit(EXIT_SUCCESS);
+        printf("%s, by %s.\n", WINDOW_TITLE, AUTHOR);
+        printf("\n");
+        printf("Usage: ./glsl_playground [width height]\n");
+        exit(EXIT_SUCCESS);
     }
     
     GLFWwindow* window;
