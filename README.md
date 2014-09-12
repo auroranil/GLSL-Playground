@@ -1,13 +1,15 @@
 #GLSL Playground
 
-A simple program written in C++ that reads a custom fragment shader and shades it to the screen. Has basic compatibility with GLSL Sandbox (Heroku) and Shadertoy fragment shaders.
+A simple program written in C++ that reads a fragment shader and shades it to the screen. Has basic compatibility with GLSL Sandbox (Heroku) and Shadertoy fragment shaders.
 
 ## Dependencies
 
-* GLFW3 (tested and works on `3.0.4` on Ubuntu 14.04 64bit)
+* GLFW3 (tested and works on `3.0.4` on `Ubuntu 14.04 64bit`)
 
 ## Compile & Run
 Run `make` to compile the program. Once it is compiled, type in your shader in the `playground.fsh` file and run the executable to see it in action.
+
+    ./glsl_playground [width height]
 
 ## Inputs
 GLSL Sandbox (Heroku)
@@ -25,7 +27,7 @@ GLSL Sandbox (Heroku)
 Shadertoy
 
     // returns the dimensions of the window
-    uniform vec2 iResolution
+    uniform vec3 iResolution
 
     // returns the mouse coordinates (when clicked) for .xy
     // and the mouse coordinates from last mouse press for .zw
@@ -34,6 +36,8 @@ Shadertoy
 
     // returns the time in seconds from when the program started
     uniform float iGlobalTime
+    
+Note: Please do not type Shadertoy uniform declarations in your shader as they are already included in the `shader_toy_inputs.fsh` file.
 
 ## What it can do
 * Read and execute custom fragment shaders
@@ -56,7 +60,7 @@ Shadertoy
 
 ## Why do this?
 #### Hasn't GLSL Heroku/Shadertoy have given you what you need?
-This is purely a learning experience, to allow me to learn more about OpenGL and GLSL. I'm inspired from others who produce vivid shaders which is breathtaking and breaks a whole new level of algorithmic arts. GLSL is a powerful language, and I think it deserves a native program to get more people interested in this field. I chose C++ for better performance and removing the overhead required to render the website; however I'm skeptical that my program can run significantly faster than GLSL Heroku or Shadertoy.
+This is purely a learning experience, to allow me to learn more about OpenGL and GLSL. I'm inspired from others who produce vivid shaders which is breathtaking and breaks a whole new level of algorithmic arts. GLSL is a powerful language, and I think it deserves a native program to get more people interested in this field. I chose C++ in hopes of achieving better performance and removing the overhead required to render the website; however I'm skeptical that my program can run significantly faster than GLSL Heroku or Shadertoy.
 
 ## License
 This program is under `BSD 2-Clause` license.
