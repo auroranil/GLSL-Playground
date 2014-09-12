@@ -12,7 +12,7 @@ Run `make` to compile the program. Once it is compiled, type in your shader in t
     ./glsl_playground [width height]
 
 ## Inputs
-GLSL Sandbox (Heroku)
+[GLSL Sandbox (Heroku)](https://github.com/mrdoob/glsl-sandbox)
 
     // returns the dimensions of the window
     uniform vec2 resolution
@@ -24,7 +24,7 @@ GLSL Sandbox (Heroku)
     // returns the time in seconds from when the program started
     uniform float time
 
-Shadertoy
+[Shadertoy](https://www.shadertoy.com/)
 
     // returns the dimensions of the window
     uniform vec3 iResolution
