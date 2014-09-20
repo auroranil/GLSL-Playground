@@ -171,6 +171,12 @@ off_t fsize(const char *filename) {
     return -1;
 }
 
+bool doesFileExist(const char * filename) {
+    struct stat st;
+    int result = stat(filename, &st);
+    return result == 0;
+}
+
 void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderID, GLint type) {
     int len = 0;
     int prev_len = 0;
@@ -182,6 +188,11 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
     char * result = (char *) malloc((len + 1) * sizeof(char));
 
     for(int i = 0; i < numOfFiles; i++) {
+        if(!doesFileExist(filePaths[i])) {
+            printf("Error while opening '%s' file.\n", filePaths[i]);
+            exit(EXIT_FAILURE);
+        }
+        
         FILE * s_file = fopen(filePaths[i], "r");
 
         fread(&result[prev_len], sizeof(char), len * sizeof(char), s_file);
@@ -243,6 +254,9 @@ void loadProgram(GLuint * prog, GLuint * vert_shader, GLuint * frag_shader) {
 
         exit(EXIT_FAILURE);
     }
+    
+    glDeleteShader(*vert_shader);
+    glDeleteShader(*frag_shader);
 }
 
 void init(void) {
@@ -270,8 +284,6 @@ void init(void) {
 }
 
 void clean_up() {
-    glDeleteShader(vert);
-    glDeleteShader(frag);
     glDeleteProgram(prog);
     glfwTerminate();
 }
