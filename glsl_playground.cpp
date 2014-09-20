@@ -1,6 +1,7 @@
 #include <GLFW/glfw3.h>
 #include <cstdio>
 #include <cstdlib>
+#include <string.h>
 #include <sys/stat.h>
 
 #define WINDOW_TITLE "GLSL Playground"
@@ -215,7 +216,46 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
         glGetShaderiv(*shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
         GLchar * infoLog = new GLchar[infoLogLength + 1];
         glGetShaderInfoLog(*shaderID, infoLogLength + 1, NULL, infoLog);
+        
+        if(type == GL_FRAGMENT_SHADER) {
+            int dummy, line_no;
+            sscanf(infoLog, "%d(%d)", &dummy, &line_no);
+            if(line_no > 0) {
+                int count = 0;
+                int i;
+                
+                GLchar * line_value;
+                
+                for(i = 0; i < len; i++) {
+                    if(result[i] == '\n') {
+                        count ++;
+                        
+                        if(count == line_no - 2) {
+                            i ++;
+                            
+                            int j;
+                            
+                            for(j = i; j < len; j++) {
+                                if(result[j] == '\n') {
+                                    break;
+                                }
+                            }
+                            
+                            line_value = (GLchar *) malloc((j - i)*sizeof(GLchar));
+                            memcpy(line_value, &result[i], j - i);
+                            line_value[j - i] = 0;
+                                                        
+                            break;
+                        }
+                    }
+                }
+                
+                printf("(Line %i): %s\n", line_no - 12, line_value);
+            }
+        }
+        
         printf("%s\n", infoLog);
+        
         delete infoLog;
 
         exit(EXIT_FAILURE);
@@ -223,6 +263,10 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
 }
 
 void loadProgram(GLuint * prog, GLuint * vert_shader, GLuint * frag_shader) {
+    if(*prog) {
+        glDeleteProgram(*prog);
+    }
+
     *prog = glCreateProgram();
     
     glAttachShader(*prog, *vert_shader);
@@ -231,6 +275,9 @@ void loadProgram(GLuint * prog, GLuint * vert_shader, GLuint * frag_shader) {
     glBindAttribLocation(*prog, POSITION_ATTRIB, "position");
 
     glLinkProgram(*prog);
+    
+    glDeleteShader(*vert_shader);
+    glDeleteShader(*frag_shader);
     
     GLint result;
 
@@ -254,9 +301,6 @@ void loadProgram(GLuint * prog, GLuint * vert_shader, GLuint * frag_shader) {
 
         exit(EXIT_FAILURE);
     }
-    
-    glDeleteShader(*vert_shader);
-    glDeleteShader(*frag_shader);
 }
 
 void init(void) {
