@@ -211,16 +211,18 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
     glGetShaderiv(*shaderID, GL_COMPILE_STATUS, &compileStatus);
 
     if(compileStatus != GL_TRUE) {
-        printf("Failed to compile %s shader:\n", type == GL_VERTEX_SHADER ? "vertex" : type == GL_FRAGMENT_SHADER ? "fragment" : "unknown");
+        printf("Failed to compile %s shader:\n\n", type == GL_VERTEX_SHADER ? "vertex" : type == GL_FRAGMENT_SHADER ? "fragment" : "unknown");
+
         GLint infoLogLength;
         glGetShaderiv(*shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
         GLchar * infoLog = new GLchar[infoLogLength + 1];
+        char * message;
         glGetShaderInfoLog(*shaderID, infoLogLength + 1, NULL, infoLog);
         
         if(type == GL_FRAGMENT_SHADER) {
             int dummy, line_no = -1;
 
-            if(sscanf(infoLog, "%d(%d)", &dummy, &line_no) == 2) {
+            if(sscanf(infoLog, "%d(%d) : %[^\n]", &dummy, &line_no, message) == 3) {
                 int count = 0;
                 int i;
                 
@@ -250,11 +252,11 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
                     }
                 }
                 
-                printf("(Line %i): %s\n", line_no - 12, line_value);
+                printf("(Line %i): %s\n\n", line_no - 12, line_value);
             }
         }
         
-        printf("%s\n", infoLog);
+        printf("%s\n", message);
         
         delete infoLog;
 
