@@ -218,9 +218,9 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
         glGetShaderInfoLog(*shaderID, infoLogLength + 1, NULL, infoLog);
         
         if(type == GL_FRAGMENT_SHADER) {
-            int dummy, line_no;
-            sscanf(infoLog, "%d(%d)", &dummy, &line_no);
-            if(line_no > 0) {
+            int dummy, line_no = -1;
+
+            if(sscanf(infoLog, "%d(%d)", &dummy, &line_no) == 2) {
                 int count = 0;
                 int i;
                 
