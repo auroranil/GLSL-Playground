@@ -10,6 +10,8 @@
 #define POSITION_ATTRIB 0
 #define COLOR_ATTRIB 1
 
+void init(void);
+
 // Vertex data of screen
 // GL_TRIANGLE_STRIP
 GLfloat vert_data[] = {
@@ -31,6 +33,9 @@ GLuint prog;
 GLuint surfaceProg;
 GLuint vert;
 GLuint frag;
+
+GLuint vao;
+GLuint buf;
 
 double _iMouseX, _iMouseY;
 
@@ -144,6 +149,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
             case GLFW_KEY_R:
                 printf("Resetted time to zero.\n");
                 startTime = glfwGetTime();
+                if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+                    init();
+                }
             break;
             
             case GLFW_KEY_SPACE:
@@ -306,18 +314,6 @@ void loadProgram(GLuint * prog, GLuint * vert_shader, GLuint * frag_shader) {
 }
 
 void init(void) {
-    GLuint vao;
-    GLuint buf;
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &buf);
-
-    glBindVertexArray(vao);
-    glEnableVertexAttribArray(POSITION_ATTRIB);
-
-    glBindBuffer(GL_ARRAY_BUFFER, buf);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vert_data), vert_data, GL_STATIC_DRAW);
-    glVertexAttribPointer(POSITION_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
     const char * vertexFilePath = "vertex.vsh";
     shaderLoadSources(&vertexFilePath, 1, &vert, GL_VERTEX_SHADER);
 
@@ -377,6 +373,16 @@ int main(int argc, char ** argv) {
 
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_callback);
+    
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &buf);
+
+    glBindVertexArray(vao);
+    glEnableVertexAttribArray(POSITION_ATTRIB);
+
+    glBindBuffer(GL_ARRAY_BUFFER, buf);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vert_data), vert_data, GL_STATIC_DRAW);
+    glVertexAttribPointer(POSITION_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     init();
 

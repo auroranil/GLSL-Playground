@@ -46,7 +46,7 @@ Note: Please do not type Shadertoy uniform declarations in your shader as they a
 * Works with some GLSL Heroku and Shadertoy shaders
 * Display time in seconds and frames per second on the title window.
 * (not yet implemented) Pressing 1-4 changes resolution factor (1x, 2x, 4x, 8x)
-* Pressing R resets timer to zero.
+* Pressing R resets timer to zero. Pressing Shift + R reloads the shaders.
 * Pressing the spacebar pauses/resumes GLSL Playground.
 * Esc or closing the program through traditional means exits the program.
 
@@ -55,7 +55,7 @@ Note: Please do not type Shadertoy uniform declarations in your shader as they a
 * Improve performance by optimizing code
 * ~~Add pause function that can be done by pressing the space bar~~
 * Implement resolution factor as seen in GLSL Heroku
-* Add ability to reload shader that can be done by pressing Shift + R
+* ~~Add ability to reload shader that can be done by pressing Shift + R~~
 * Improve compatibility with GLSL Heroku and Shadertoy
 * Add various geometry that can be used to test shaders on rather than simply rendering on the screen
 * Add capability to read in multiple shaders, that can be navigated by pressing the cursor keys.
