@@ -2,6 +2,8 @@
 
 A simple program written in C++ that reads a fragment shader and shades it to the screen. Has basic compatibility with GLSL Sandbox (Heroku) and Shadertoy fragment shaders.
 
+![Screenshot](screenshot.png)
+
 ## Dependencies
 
 * GLFW3 (tested and works on `3.0.4` on `Ubuntu 14.04 64bit`)
