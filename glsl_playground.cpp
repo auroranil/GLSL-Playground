@@ -90,7 +90,16 @@ Target::~Target() {
 #endif // TARGET_H
 
 // https://stackoverflow.com/questions/18412120/displaying-fps-in-glfw-window-title
-void setWindowFPS (GLFWwindow* win) {
+void updateTitle(GLFWwindow* win) {
+    char title [256];
+    title [255] = '\0';
+
+    snprintf (title, 255, "%s - %ds - [FPS: %d] @ %dx %s", WINDOW_TITLE, (int) currentTime, lastFrames, res, paused ? "(PAUSED)" : "");
+
+    glfwSetWindowTitle (win, title);
+}
+
+void setWindowFPS (GLFWwindow* win, bool forceUpdate = false) {
     // Measure speed
     if(!paused) {
         currentTime = glfwGetTime() - startTime;
@@ -101,15 +110,14 @@ void setWindowFPS (GLFWwindow* win) {
 
             nbFrames = 0;
             lastTime += 1.0;
+            
+            updateTitle(win);
+        } else if(forceUpdate) {
+            updateTitle(win);
         }
+    } else if(forceUpdate) {
+        updateTitle(win);
     }
-
-    char title [256];
-    title [255] = '\0';
-
-    snprintf (title, 255, "%s - %.2fs - [FPS: %d] @ %dx %s", WINDOW_TITLE, currentTime, lastFrames, res, paused ? "(PAUSED)" : "");
-
-    glfwSetWindowTitle (win, title);
 }
 
 static void error_callback(int error, const char* description)
@@ -119,35 +127,35 @@ static void error_callback(int error, const char* description)
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if(action == GLFW_PRESS) {
+    if(action == GLFW_PRESS) {    
         switch(key) {
             case GLFW_KEY_ESCAPE:
-                printf("Exiting... (closed by user via Esc key)\n");
+                printf("%s - Exiting... (closed by user via Esc key)\n", __func__);
                 glfwSetWindowShouldClose(window, GL_TRUE);                
             break;
             
             case GLFW_KEY_1:
-                printf("Switched to 1x\n");
+                printf("%s - Switched to 1x\n", __func__);
                 res = 1;
             break;
             
             case GLFW_KEY_2:
-                printf("Switched to 2x\n");
+                printf("%s - Switched to 2x\n", __func__);
                 res = 2;
             break;
             
             case GLFW_KEY_3:
-                printf("Switched to 4x\n");
+                printf("%s - Switched to 4x\n", __func__);
                 res = 4;
             break;
             
             case GLFW_KEY_4:
-                printf("Switched to 8x\n");
+                printf("%s - Switched to 8x\n", __func__);
                 res = 8;
             break;
             
             case GLFW_KEY_R:
-                printf("Resetted time to zero.\n");
+                printf("%s - Resetted time to zero.\n", __func__);
                 startTime = glfwGetTime();
                 if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
                     init();
@@ -157,11 +165,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
             case GLFW_KEY_SPACE:
                 paused = !paused;
 
+                printf("%s - ", __func__);
                 printf(paused ? "Paused GLSL Playground\n" : "Resuming GLSL Playground\n");
 
                 startTime = glfwGetTime() - startTime;        
             break;
         }
+        
+        setWindowFPS(window, true);
     }
 }
 
@@ -198,7 +209,7 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
 
     for(int i = 0; i < numOfFiles; i++) {
         if(!doesFileExist(filePaths[i])) {
-            printf("Error while opening '%s' file.\n", filePaths[i]);
+            printf("%s - Error while opening '%s' file.\n", __func__, filePaths[i]);
             exit(EXIT_FAILURE);
         }
         
@@ -219,12 +230,12 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
     glGetShaderiv(*shaderID, GL_COMPILE_STATUS, &compileStatus);
 
     if(compileStatus != GL_TRUE) {
-        printf("Failed to compile %s shader:\n\n", type == GL_VERTEX_SHADER ? "vertex" : type == GL_FRAGMENT_SHADER ? "fragment" : "unknown");
+        printf("%s - Failed to compile %s shader:\n\n", __func__, type == GL_VERTEX_SHADER ? "vertex" : type == GL_FRAGMENT_SHADER ? "fragment" : "unknown");
 
         GLint infoLogLength;
         glGetShaderiv(*shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
         GLchar * infoLog = new GLchar[infoLogLength + 1];
-        char * message;
+        char * message = (char *) calloc(infoLogLength + 1, sizeof(char));
         glGetShaderInfoLog(*shaderID, infoLogLength + 1, NULL, infoLog);
         
         if(type == GL_FRAGMENT_SHADER) {
@@ -260,11 +271,11 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
                     }
                 }
                 
-                printf("(Line %i): %s\n\n", line_no - 12, line_value);
+                printf("%s - (Line %i): %s\n\n", __func__, line_no - 12, line_value);
             }
         }
         
-        printf("%s\n", message);
+        printf("%s - %s\n", __func__, message);
         
         delete infoLog;
 
@@ -303,7 +314,7 @@ void loadProgram(GLuint * prog, GLuint * vert_shader, GLuint * frag_shader) {
         glGetProgramInfoLog(*prog, length, &result, log);
 
         /* print an error message and the info log */
-        fprintf(stderr, "loadProgram(): Program linking failed:\n%s\n", log);
+        fprintf(stderr, "%s - Program linking failed:\n%s\n", __func__, log);
         free(log);
 
         /* delete the program */
@@ -348,7 +359,7 @@ int main(int argc, char ** argv) {
     else {
         printf("%s, by %s.\n", WINDOW_TITLE, AUTHOR);
         printf("\n");
-        printf("Usage: ./glsl_playground [width height]\n");
+        printf("%s - Usage: ./glsl_playground [width height]\n", __func__);
         exit(EXIT_SUCCESS);
     }
     
@@ -357,14 +368,14 @@ int main(int argc, char ** argv) {
     glfwSetErrorCallback(error_callback);
 
     if(!glfwInit()) {
-        printf("Error while initialising glfw. Exiting...\n");
+        printf("%s - Error while initialising glfw. Exiting...\n", __func__);
         exit(EXIT_FAILURE);
     }
 
     window = glfwCreateWindow(width, height, WINDOW_TITLE, NULL, NULL);
 
     if(!window) {
-        printf("Error while initialising window via glfw. Terminating...\n");
+        printf("%s - Error while initialising window via glfw. Terminating...\n", __func__);
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
