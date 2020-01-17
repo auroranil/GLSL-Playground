@@ -233,42 +233,42 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
     }
 }
 
-void loadProgram(GLuint * prog, GLuint * vert_shader, GLuint * frag_shader) {
-    if(*prog) {
-        glDeleteProgram(*prog);
+void loadProgram(GLuint &prog, GLuint &vert_shader, GLuint &frag_shader) {
+    if(prog) {
+        glDeleteProgram(prog);
     }
 
-    *prog = glCreateProgram();
+    prog = glCreateProgram();
     
-    glAttachShader(*prog, *vert_shader);
-    glAttachShader(*prog, *frag_shader);
+    glAttachShader(prog, vert_shader);
+    glAttachShader(prog, frag_shader);
     
-    glBindAttribLocation(*prog, POSITION_ATTRIB, "position");
+    glBindAttribLocation(prog, POSITION_ATTRIB, "position");
 
-    glLinkProgram(*prog);
+    glLinkProgram(prog);
     
-    glDeleteShader(*vert_shader);
-    glDeleteShader(*frag_shader);
+    glDeleteShader(vert_shader);
+    glDeleteShader(frag_shader);
     
     GLint result;
 
-    glGetProgramiv(*prog, GL_LINK_STATUS, &result);
+    glGetProgramiv(prog, GL_LINK_STATUS, &result);
 
     if(result == GL_FALSE) {
         GLint length;
         char *log;
 
         /* get the program info log */
-        glGetProgramiv(*prog, GL_INFO_LOG_LENGTH, &length);
+        glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &length);
         log = (char *) malloc(length);
-        glGetProgramInfoLog(*prog, length, &result, log);
+        glGetProgramInfoLog(prog, length, &result, log);
 
         /* print an error message and the info log */
         fprintf(stderr, "%s - Program linking failed:\n%s\n", __func__, log);
         free(log);
 
         /* delete the program */
-        glDeleteProgram(*prog);
+        glDeleteProgram(prog);
 
         exit(EXIT_FAILURE);
     }
@@ -281,7 +281,7 @@ void init(void) {
     const char * fragmentFilePath[2] = {"shader_toy_inputs.fsh", "playground.fsh"};
     shaderLoadSources(fragmentFilePath, 2, &frag, GL_FRAGMENT_SHADER);
     
-    loadProgram(&prog, &vert, &frag);
+    loadProgram(prog, vert, frag);
 
     //surfaceProg = glCreateProgram();
 }
