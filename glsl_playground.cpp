@@ -147,7 +147,7 @@ bool doesFileExist(const char * filename) {
     return result == 0;
 }
 
-void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderID, GLint type) {
+void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint &shaderID, GLint type) {
     int len = 0;
     int prev_len = 0;
 
@@ -172,21 +172,21 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint * shaderI
 
     result[len] = '\0';
 
-    *shaderID = glCreateShader(type);
-    glShaderSource(*shaderID, 1, &result, 0);
-    glCompileShader(*shaderID);
+    shaderID = glCreateShader(type);
+    glShaderSource(shaderID, 1, &result, 0);
+    glCompileShader(shaderID);
 
     GLint compileStatus;
-    glGetShaderiv(*shaderID, GL_COMPILE_STATUS, &compileStatus);
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileStatus);
 
     if(compileStatus != GL_TRUE) {
         printf("%s - Failed to compile %s shader:\n\n", __func__, type == GL_VERTEX_SHADER ? "vertex" : type == GL_FRAGMENT_SHADER ? "fragment" : "unknown");
 
         GLint infoLogLength;
-        glGetShaderiv(*shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
+        glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
         GLchar * infoLog = new GLchar[infoLogLength + 1];
         char * message = (char *) calloc(infoLogLength + 1, sizeof(char));
-        glGetShaderInfoLog(*shaderID, infoLogLength + 1, NULL, infoLog);
+        glGetShaderInfoLog(shaderID, infoLogLength + 1, NULL, infoLog);
         
         if(type == GL_FRAGMENT_SHADER) {
             int dummy, line_no = -1;
@@ -276,10 +276,10 @@ void loadProgram(GLuint &prog, GLuint &vert_shader, GLuint &frag_shader) {
 
 void init(void) {
     const char * vertexFilePath = "vertex.vsh";
-    shaderLoadSources(&vertexFilePath, 1, &vert, GL_VERTEX_SHADER);
+    shaderLoadSources(&vertexFilePath, 1, vert, GL_VERTEX_SHADER);
 
     const char * fragmentFilePath[2] = {"shader_toy_inputs.fsh", "playground.fsh"};
-    shaderLoadSources(fragmentFilePath, 2, &frag, GL_FRAGMENT_SHADER);
+    shaderLoadSources(fragmentFilePath, 2, frag, GL_FRAGMENT_SHADER);
     
     loadProgram(prog, vert, frag);
 
