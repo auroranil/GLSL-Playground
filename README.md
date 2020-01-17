@@ -1,4 +1,4 @@
-#GLSL Playground
+# GLSL Playground
 
 A simple program written in C++ that reads a fragment shader and shades it to the screen. Has basic compatibility with GLSL Sandbox (Heroku) and Shadertoy fragment shaders.
 
@@ -6,7 +6,7 @@ A simple program written in C++ that reads a fragment shader and shades it to th
 
 ## Dependencies
 
-* GLFW3 (tested and works on `3.0.4` on `Ubuntu 14.04 64bit`)
+* GLFW3 (tested and works on `3.3.1` on `Ubuntu 18.04 LTS`)
 
 ## Compile & Run
 Run `make` to compile the program. Once it is compiled, type in your shader in the `playground.fsh` file and run the executable to see it in action.
