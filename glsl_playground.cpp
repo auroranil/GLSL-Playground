@@ -39,56 +39,6 @@ GLuint buf;
 
 double _iMouseX, _iMouseY;
 
-#ifndef TARGET_H
-#define TARGET_H
-class Target {
-    public:
-        GLuint framebuffer, renderbuffer, texture;
-        Target(GLsizei, GLsizei);
-        ~Target();
-};
-
-Target::Target(GLsizei width, GLsizei height) {
-    // Generate framebuffer, renderbuffer, and texture
-    glGenFramebuffers(1, &framebuffer);
-    glGenRenderbuffers(1, &renderbuffer);
-    glGenTextures(1, &texture);
-
-    // set up framebuffer
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0 );
-
-    // set up renderbuffer
-
-    glBindRenderbuffer( GL_RENDERBUFFER, renderbuffer );
-
-    glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height );
-    glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer );
-
-    // clean up
-
-    glBindTexture( GL_TEXTURE_2D, 0 );
-    glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-    glBindFramebuffer( GL_FRAMEBUFFER, 0);
-
-}
-
-Target::~Target() {
-    glDeleteFramebuffers(1, &framebuffer);
-    glDeleteRenderbuffers(1, &renderbuffer);
-    glDeleteTextures(1, &texture);
-}
-#endif // TARGET_H
-
 // https://stackoverflow.com/questions/18412120/displaying-fps-in-glfw-window-title
 void updateTitle(GLFWwindow* win) {
     char title [256];
@@ -410,9 +360,6 @@ int main(int argc, char ** argv) {
     GLint iResolutionLocation = glGetUniformLocation(prog, "iResolution");
     GLint iGlobalTimeLocation = glGetUniformLocation(prog, "iGlobalTime");
     GLint iMouseLocation = glGetUniformLocation(prog, "iMouse");
-
-    //Target * backTarget = new Target(width/res, height/res);
-    //Target * frontTarget = new Target(width, height);
 
     float resolution[3];
     resolution[2] = 1.0;
