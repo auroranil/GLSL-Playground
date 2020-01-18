@@ -10,7 +10,7 @@
 #define POSITION_ATTRIB 0
 #define COLOR_ATTRIB 1
 
-void init(void);
+GLuint init(void);
 
 // Vertex data of screen
 // GL_TRIANGLE_STRIP
@@ -30,10 +30,6 @@ double currentTime;
 bool paused = false;
 
 GLuint prog;
-GLuint surfaceProg;
-GLuint vert;
-GLuint frag;
-
 GLuint vao;
 GLuint buf;
 
@@ -105,10 +101,13 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
             break;
             
             case GLFW_KEY_R:
-                printf("%s - Resetted time to zero.\n", __func__);
                 startTime = glfwGetTime();
                 if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
-                    init();
+                    glDeleteProgram(prog);
+                    prog = init();
+                    printf("%s - Reloaded program.\n", __func__);
+                } else {
+                    printf("%s - Resetted time to zero.\n", __func__);
                 }
             break;
             
@@ -147,7 +146,7 @@ bool doesFileExist(const char * filename) {
     return result == 0;
 }
 
-void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint &shaderID, GLint type) {
+GLuint shaderLoadSources(const char ** filePaths, int numOfFiles, GLint type) {
     int len = 0;
     int prev_len = 0;
 
@@ -172,7 +171,7 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint &shaderID
 
     result[len] = '\0';
 
-    shaderID = glCreateShader(type);
+    GLuint shaderID = glCreateShader(type);
     glShaderSource(shaderID, 1, &result, 0);
     glCompileShader(shaderID);
 
@@ -231,14 +230,12 @@ void shaderLoadSources(const char ** filePaths, int numOfFiles, GLuint &shaderID
 
         exit(EXIT_FAILURE);
     }
+    
+    return shaderID;
 }
 
-void loadProgram(GLuint &prog, GLuint &vert_shader, GLuint &frag_shader) {
-    if(prog) {
-        glDeleteProgram(prog);
-    }
-
-    prog = glCreateProgram();
+GLuint loadProgram(GLuint vert_shader, GLuint frag_shader) {
+    GLuint prog = glCreateProgram();
     
     glAttachShader(prog, vert_shader);
     glAttachShader(prog, frag_shader);
@@ -272,23 +269,18 @@ void loadProgram(GLuint &prog, GLuint &vert_shader, GLuint &frag_shader) {
 
         exit(EXIT_FAILURE);
     }
+    
+    return prog;
 }
 
-void init(void) {
+GLuint init(void) {
     const char * vertexFilePath = "vertex.vsh";
-    shaderLoadSources(&vertexFilePath, 1, vert, GL_VERTEX_SHADER);
+    GLuint vert = shaderLoadSources(&vertexFilePath, 1, GL_VERTEX_SHADER);
 
     const char * fragmentFilePath[2] = {"shader_toy_inputs.fsh", "playground.fsh"};
-    shaderLoadSources(fragmentFilePath, 2, frag, GL_FRAGMENT_SHADER);
+    GLuint frag = shaderLoadSources(fragmentFilePath, 2, GL_FRAGMENT_SHADER);
     
-    loadProgram(prog, vert, frag);
-
-    //surfaceProg = glCreateProgram();
-}
-
-void clean_up() {
-    glDeleteProgram(prog);
-    glfwTerminate();
+    return loadProgram(vert, frag);
 }
 
 int main(int argc, char ** argv) {
@@ -345,7 +337,7 @@ int main(int argc, char ** argv) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vert_data), vert_data, GL_STATIC_DRAW);
     glVertexAttribPointer(POSITION_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-    init();
+    prog = init();
 
     double mouseX, mouseY;
     float mouse[2];
@@ -418,7 +410,8 @@ int main(int argc, char ** argv) {
         glUseProgram(0);
     }
 
-    clean_up();
+    glDeleteProgram(prog);
+    glfwTerminate();
 
     return 0;
 }
