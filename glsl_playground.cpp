@@ -350,7 +350,7 @@ int main(int argc, char ** argv) {
 
     // Shadertoy
     GLint iResolutionLocation = glGetUniformLocation(prog, "iResolution");
-    GLint iGlobalTimeLocation = glGetUniformLocation(prog, "iGlobalTime");
+    GLint iTimeLocation = glGetUniformLocation(prog, "iTime");
     GLint iMouseLocation = glGetUniformLocation(prog, "iMouse");
 
     float resolution[3];
@@ -390,7 +390,7 @@ int main(int argc, char ** argv) {
             glUniform2fv(mouseLocation, 1, mouse);
 
             glUniform3fv(iResolutionLocation, 1, resolution);
-            glUniform1f(iGlobalTimeLocation, (float) (glfwGetTime() - startTime));
+            glUniform1f(iTimeLocation, (float) (glfwGetTime() - startTime));
             glUniform4fv(iMouseLocation, 1, iMouse);
 
             glViewport(0, 0, width, height);

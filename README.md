@@ -37,7 +37,7 @@ Run `make` to compile the program. Once it is compiled, type in your shader in t
     uniform vec4 iMouse
 
     // returns the time in seconds from when the program started
-    uniform float iGlobalTime
+    uniform float iTime
     
 Note: Please do not type Shadertoy uniform declarations in your shader as they are already included in the `shader_toy_inputs.fsh` file.
 
